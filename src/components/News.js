@@ -2,6 +2,8 @@ import React, { Component } from "react"
 import NewsItem from "./NewsItem"
 import Spinner from "./Spinner"
 import PropTypes from "prop-types"
+import InfiniteScroll from "react-infinite-scroll-component"
+import "../custom-css/main.css"
 
 export default class News extends Component {
   static defaultProps = {
@@ -55,6 +57,22 @@ export default class News extends Component {
   handleNextClick = async () => {
     this.setState({ page: this.state.page + 1 })
     this.updateNews()
+  }
+
+  fetchMoreData = async () => {
+    this.setState({ page: this.state.page + 1 })
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=69cbf71f24054d2fa79cf12ab2ab854c&page=${this.state.page}
+    &pageSize=${this.props.pageSize}`
+    this.setState({ loading: true })
+    let data = await fetch(url)
+    let parsedData = await data.json()
+    let totalResults = await parsedData.totalResults
+    console.log(totalResults)
+    this.setState({
+      articles: this.state.articles.concat(parsedData.articles),
+      totalResults: parsedData.totalResults,
+      loading: false,
+    })
   }
 
   render() {
